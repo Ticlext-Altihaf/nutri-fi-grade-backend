@@ -8,7 +8,7 @@ public class ClassificationController : ControllerBase
 {
 
     [HttpPost(Name = "UploadImage")]
-    public async Task<IActionResult> UploadImage(IFormFile image)
+    public async Task<IActionResult> UploadImage(IFormFile? image)
     {
         if (image == null || image.Length == 0)
         {
