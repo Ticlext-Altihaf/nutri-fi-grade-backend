@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <PackageReference Include="Microsoft.SemanticKernel" Version="1.25.0" />
+      <PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureAIInference" Version="1.25.0-beta" />
     </ItemGroup>
 
 </Project>
