@@ -1,3 +1,6 @@
+using Server.AI;
+using Server.AI.Methods;
+
 namespace Server;
 
 public class Program
@@ -8,10 +11,42 @@ public class Program
 
         // Add services to the container.
 
+        var currentDirectory = Directory.GetCurrentDirectory();
+        var possibleAppSettingLocations = new[]
+        {
+            Path.Combine(currentDirectory, "appsettings.json"),
+            Path.Combine(currentDirectory, "..", "appsettings.json"),
+            Path.Combine(currentDirectory, "..", "..", "appsettings.json"),
+            Path.Combine(currentDirectory, "..", "..", "..", "appsettings.json"),
+            Path.Combine(currentDirectory, "..", "..", "..", "..", "appsettings.json"),
+            Path.Combine(currentDirectory, "..", "..", "..", "..", "..", "appsettings.json"),
+            Path.Combine(currentDirectory, "..", "..", "..", "..", "..", "..", "appsettings.json")
+        };
+
+        builder.Configuration.SetBasePath(currentDirectory);
+        builder.Configuration.AddEnvironmentVariables();
+
+        var foundAppSetting = false;
+        foreach (var possibleAppSettingLocation in possibleAppSettingLocations)
+            if (File.Exists(possibleAppSettingLocation))
+            {
+                foundAppSetting = true;
+                builder.Configuration.AddJsonFile(possibleAppSettingLocation, false, true);
+                break;
+            }
+
+        if (!foundAppSetting) throw new FileNotFoundException("Could not find appsettings.json");
+
+
+        builder.Logging.AddConsole();
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+        builder.Services.Configure<AppConfiguration>(builder.Configuration);
+
+        builder.Services.AddSingleton<SemanticKernelProvider>();
+        builder.Services.AddSingleton<MethodChainOfThought>();
 
         var app = builder.Build();
 

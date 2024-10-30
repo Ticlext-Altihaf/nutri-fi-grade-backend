@@ -5,8 +5,15 @@ using Microsoft.SemanticKernel.ChatCompletion;
 namespace Server.AI.Methods;
 
 // Sherlock Holmes moment
-public class ChainOfThought
+public class MethodChainOfThought
 {
+    private readonly SemanticKernelProvider _semanticKernelProvider;
+
+    public MethodChainOfThought(SemanticKernelProvider semanticKernelProvider)
+    {
+        _semanticKernelProvider = semanticKernelProvider;
+    }
+
     private static async Task<string> ConvertIFormFileToDataUri(IFormFile file)
     {
         if (file == null || file.Length == 0)
@@ -28,9 +35,9 @@ public class ChainOfThought
 
         return dataUri;
     }
-    public static async Task<string?> Observation(IFormFile image)
+    public  async Task<string?> Observation(IFormFile image)
     {
-        var chatCompletionService = ModelConfig.GetChatCompletionService();
+        var chatCompletionService = _semanticKernelProvider.GetChatCompletionService();
 
         string systemPrompt = "Describe the foods one by one in the image if possible.";
         string userInput = "Create observation for this image";
@@ -51,10 +58,10 @@ public class ChainOfThought
     }
 
 
-    public static async Task<string?> ClassifyNOVA(string description)
+    public  async Task<string?> ClassifyNOVA(string description)
     {
         // Use a model or logic to classify the food description into NOVA categories
-        var chatCompletionService = ModelConfig.GetChatCompletionService();
+        var chatCompletionService = _semanticKernelProvider.GetChatCompletionService();
         string systemPrompt = "Classify the following food description into NOVA categories.";
         string userInput = $"Classify this description: {description}";
 
@@ -66,10 +73,10 @@ public class ChainOfThought
         return reply.Content;
     }
 
-    public static async Task<string?> EvaluateNutriGrade(string description)
+    public  async Task<string?> EvaluateNutriGrade(string description)
     {
         // Use a model or logic to evaluate the Nutri-Grade of the food description
-        var chatCompletionService = ModelConfig.GetChatCompletionService();
+        var chatCompletionService = _semanticKernelProvider.GetChatCompletionService();
         string systemPrompt = "Evaluate the Nutri-Grade for the following food description.";
         string userInput = $"Evaluate Nutri-Grade for this description: {description}";
 
@@ -82,15 +89,15 @@ public class ChainOfThought
     }
 
 
-    public static async Task<string?> Analyze(IFormFile image)
+    public async Task<string?> Analyze(IFormFile image)
     {
-        var observation = await ChainOfThought.Observation(image);
+        var observation = await Observation(image);
         if(observation == null)
         {
             return null;
         }
-        var novaClassificationTask = ChainOfThought.ClassifyNOVA(observation);
-        var nutriGradeTask = ChainOfThought.EvaluateNutriGrade(observation);
+        var novaClassificationTask = ClassifyNOVA(observation);
+        var nutriGradeTask = EvaluateNutriGrade(observation);
 
         await Task.WhenAll(novaClassificationTask, nutriGradeTask);
 

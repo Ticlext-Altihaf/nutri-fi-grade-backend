@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
@@ -15,9 +16,19 @@ namespace Server.Controllers;
 public class ClassificationController : ControllerBase
 {
 
+
+    private readonly MethodChainOfThought _chainOfThought;
+    private readonly SemanticKernelProvider _semanticKernelProvider;
+
+    public ClassificationController(MethodChainOfThought chainOfThought, SemanticKernelProvider semanticKernelProvider)
+    {
+        _chainOfThought = chainOfThought;
+        _semanticKernelProvider = semanticKernelProvider;
+    }
+
     private async Task<FoodClassificationResult?> ToStructuredOutput(string analysis)
     {
-        var kernel = ModelConfig.GetKernel();
+        var kernel = _semanticKernelProvider.GetKernel();
         // Specify response format by setting Type object in prompt execution settings.
         var executionSettings = new OpenAIPromptExecutionSettings
         {
@@ -36,7 +47,7 @@ public class ClassificationController : ControllerBase
             return BadRequest("No image uploaded.");
         }
 
-        var observation = await ChainOfThought.Analyze(image);
+        var observation = await _chainOfThought.Analyze(image);
         if(observation == null) return BadRequest("No observation found.");
         var structure = await ToStructuredOutput(observation);
         if(structure == null) return BadRequest("No structured output found.");

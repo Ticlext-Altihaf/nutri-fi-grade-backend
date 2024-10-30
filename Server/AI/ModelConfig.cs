@@ -29,19 +29,5 @@ public class ModelConfig
         return name;
     }
 
-    public static Kernel GetKernel()
-    {
-        //Create a kernel with gpt-4 vision model
-        var kernel = Kernel.CreateBuilder()
 
-            .Build();
-
-
-        return kernel;
-    }
-
-    public static IChatCompletionService GetChatCompletionService()
-    {
-        return GetKernel().Services.GetRequiredService<IChatCompletionService>();
-    }
 }
