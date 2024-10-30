@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Server.AI;
 using Server.AI.Methods;
+using Server.Services;
 
 namespace Server;
 
@@ -40,6 +41,9 @@ public class Program
 
 
         builder.Logging.AddConsole();
+
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddScoped<IUserLanguageService, UserLanguageService>();
         builder.Services.AddControllers().AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());

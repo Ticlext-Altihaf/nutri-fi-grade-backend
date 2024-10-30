@@ -9,6 +9,7 @@ using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Server.AI;
 using Server.AI.Methods;
 using Server.Models;
+using Server.Services;
 
 namespace Server.Controllers;
 #pragma warning disable SKEXP0010
@@ -20,21 +21,27 @@ public class ClassificationController : ControllerBase
 
     private readonly MethodChainOfThought _chainOfThought;
     private readonly SemanticKernelProvider _semanticKernelProvider;
+    private readonly IUserLanguageService _userLanguageService;
 
-    public ClassificationController(MethodChainOfThought chainOfThought, SemanticKernelProvider semanticKernelProvider)
+    public ClassificationController(MethodChainOfThought chainOfThought, SemanticKernelProvider semanticKernelProvider, IUserLanguageService userLanguageService)
     {
         _chainOfThought = chainOfThought;
         _semanticKernelProvider = semanticKernelProvider;
+        _userLanguageService = userLanguageService;
     }
 
     private async Task<FoodClassificationResult?> ToStructuredOutput(string analysis)
     {
         var kernel = _semanticKernelProvider.GetKernel();
+        var language = _userLanguageService.GetUserLanguage();
+        var stringBuilder = new StringBuilder();
+        stringBuilder.AppendLine("What is the NOVA and Nutri-Score classification of this food? if NOVA is high it can be difficult to guess Nutri-Score.");
+        stringBuilder.AppendLine("Give observation in " + language + " language.");
         // Specify response format by setting Type object in prompt execution settings.
         var executionSettings = new OpenAIPromptExecutionSettings
         {
             ResponseFormat = typeof(FoodClassificationResult),
-            ChatSystemPrompt = "What is the NOVA and Nutri-Score classification of this food? if NOVA is high it can be difficult to guess Nutri-Score.",
+            ChatSystemPrompt = stringBuilder.ToString()
         };
         var result = await kernel.InvokePromptAsync(analysis, new KernelArguments(executionSettings));
         var options = new JsonSerializerOptions
