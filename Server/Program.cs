@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Server.AI;
 using Server.AI.Methods;
 
@@ -39,7 +40,11 @@ public class Program
 
 
         builder.Logging.AddConsole();
-        builder.Services.AddControllers();
+        builder.Services.AddControllers().AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            //options.JsonSerializerOptions.IgnoreNullValues = true;
+        });
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();

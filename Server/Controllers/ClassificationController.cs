@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
@@ -32,10 +33,15 @@ public class ClassificationController : ControllerBase
         // Specify response format by setting Type object in prompt execution settings.
         var executionSettings = new OpenAIPromptExecutionSettings
         {
-            ResponseFormat = typeof(FoodClassificationResult)
+            ResponseFormat = typeof(FoodClassificationResult),
+            ChatSystemPrompt = "What is the NOVA and Nutri-Score classification of this food? if NOVA is high it can be difficult to guess Nutri-Score.",
         };
         var result = await kernel.InvokePromptAsync(analysis, new KernelArguments(executionSettings));
-        var resultData = JsonSerializer.Deserialize<FoodClassificationResult>(result.ToString());
+        var options = new JsonSerializerOptions
+        {
+            Converters = { new JsonStringEnumConverter() }
+        };
+        var resultData = JsonSerializer.Deserialize<FoodClassificationResult>(result.ToString(), options);
         return resultData;
     }
 
@@ -51,7 +57,8 @@ public class ClassificationController : ControllerBase
         if(observation == null) return BadRequest("No observation found.");
         var structure = await ToStructuredOutput(observation);
         if(structure == null) return BadRequest("No structured output found.");
-        return Ok(ToStructuredOutput(observation));
+
+        return Ok(structure);
 
     }
 
