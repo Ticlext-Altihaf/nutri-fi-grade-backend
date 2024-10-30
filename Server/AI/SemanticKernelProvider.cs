@@ -60,6 +60,13 @@ public class SemanticKernelProvider
                 apiKey: selectedModel.Key,
                 endpoint: new Uri(endpoint)
             );
+        }else if(selectedModel.Type == "AzureOpenAI")
+        {
+            builder.AddAzureOpenAIChatCompletion(
+                deploymentName: selectedModel.DeploymentName,
+                apiKey: selectedModel.Key,
+                endpoint: endpoint
+            );
         }
         else
         {

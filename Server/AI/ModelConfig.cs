@@ -11,12 +11,17 @@ public class ModelConfig
     public string Type { get; set; } = "Other";
     public uint MaxInput { get; set; } = 4096;
     public bool IsVisionReady { get; set; } = false;
+    public string? DeploymentName { get; set; }
 
     public string ModelName => GetDisplayName();
 
 
     public string GetDisplayName()
     {
+        if(DeploymentName != null)
+        {
+            return DeploymentName;
+        }
         if (DisplayName != null)
         {
             return DisplayName;
