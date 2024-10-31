@@ -3,14 +3,14 @@ using System.Text.Json.Serialization;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 
-namespace Server.AI.Techniques;
-#pragma warning disable SKEXP0010
-public class Consensus
-{
+namespace Server.AI;
 
+#pragma warning disable SKEXP0010
+public class PromptTechniques
+{
     private readonly SemanticKernelProvider _semanticKernelProvider;
 
-    public Consensus(SemanticKernelProvider semanticKernelProvider)
+    public PromptTechniques(SemanticKernelProvider semanticKernelProvider)
     {
         _semanticKernelProvider = semanticKernelProvider;
     }
