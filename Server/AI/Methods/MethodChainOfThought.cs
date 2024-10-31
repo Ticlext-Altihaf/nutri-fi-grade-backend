@@ -58,11 +58,11 @@ public class MethodChainOfThought
     }
 
 
-    public  async Task<string?> ClassifyNOVA(string description)
+    public  async Task<string?> ClassifyNova(string description)
     {
         // Use a model or logic to classify the food description into NOVA categories
         var chatCompletionService = _semanticKernelProvider.GetChatCompletionService();
-        string systemPrompt = "Classify the following food description into NOVA categories.";
+        string systemPrompt = "Classify the following food description into NOVA categories, think it step-by-step.";
         string userInput = $"Classify this description: {description}";
 
         var chatHistory = new ChatHistory(systemPrompt);
@@ -77,7 +77,7 @@ public class MethodChainOfThought
     {
         // Use a model or logic to evaluate the Nutri-Grade of the food description
         var chatCompletionService = _semanticKernelProvider.GetChatCompletionService();
-        string systemPrompt = "Evaluate the Nutri-Grade for the following food description.";
+        string systemPrompt = "Evaluate the Nutri-Grade for the following food description, think it step-by-step.";
         string userInput = $"Evaluate Nutri-Grade for this description: {description}";
 
         var chatHistory = new ChatHistory(systemPrompt);
@@ -96,7 +96,7 @@ public class MethodChainOfThought
         {
             return null;
         }
-        var novaClassificationTask = ClassifyNOVA(observation);
+        var novaClassificationTask = ClassifyNova(observation);
         var nutriGradeTask = EvaluateNutriGrade(observation);
 
         await Task.WhenAll(novaClassificationTask, nutriGradeTask);

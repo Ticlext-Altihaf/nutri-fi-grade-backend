@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Server.Models;
 
-public class FoodClassificationResult
+public class FoodClassificationResult : IReasoningResult
 {
     public enum NOVA
     {
@@ -27,4 +27,5 @@ public class FoodClassificationResult
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public NutriScore? NutriGrade { get; set; }
 
+    public string? Reasoning { get; set; }
 }

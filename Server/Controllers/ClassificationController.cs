@@ -37,20 +37,58 @@ public class ClassificationController : ControllerBase
         var stringBuilder = new StringBuilder();
         stringBuilder.AppendLine("What is the NOVA and Nutri-Score classification of this food? if NOVA is high it can be difficult to guess Nutri-Score.");
         stringBuilder.AppendLine("Give observation in " + language + " language.");
-        // Specify response format by setting Type object in prompt execution settings.
+
+
+        var tasks = new List<Task<FoodClassificationResult?>>();
+        var random = new Random();
+        for (var i = 0; i < 5; i++)
+        {
+            tasks.Add(Task.Run(async () =>
+            {
+                var executionSettings = new OpenAIPromptExecutionSettings
+                {
+                    ResponseFormat = typeof(FoodClassificationResult),
+                    ChatSystemPrompt = stringBuilder.ToString(),
+                    Temperature = 0.65,
+                    Seed = random.NextInt64(),
+                };
+
+                var result = await kernel.InvokePromptAsync(analysis, new KernelArguments(executionSettings));
+                var options = new JsonSerializerOptions
+                {
+                    Converters = { new JsonStringEnumConverter() }
+                };
+                var json = result.ToString();
+                return JsonSerializer.Deserialize<FoodClassificationResult>(json, options);
+            }));
+        }
+
+        var results = await Task.WhenAll(tasks);
+
+        // Return the last non-null result, or null if all are null
+        return await FindConsensus(results);
+    }
+
+    private async Task<T?> FindConsensus<T>(IEnumerable<T> results)
+    {
+        var kernel = _semanticKernelProvider.GetKernel();
         var executionSettings = new OpenAIPromptExecutionSettings
         {
-            ResponseFormat = typeof(FoodClassificationResult),
-            ChatSystemPrompt = stringBuilder.ToString()
+            ResponseFormat = typeof(T),
+            ChatSystemPrompt = "Find the consensus of the following results and get rid of faulty reasoning.",
+            Temperature = 0,
         };
-        var result = await kernel.InvokePromptAsync(analysis, new KernelArguments(executionSettings));
+
+
+        var result = await kernel.InvokePromptAsync(JsonSerializer.Serialize(results), new KernelArguments(executionSettings));
         var options = new JsonSerializerOptions
         {
             Converters = { new JsonStringEnumConverter() }
         };
-        var resultData = JsonSerializer.Deserialize<FoodClassificationResult>(result.ToString(), options);
-        return resultData;
+        var json = result.ToString();
+        return JsonSerializer.Deserialize<T>(json, options);
     }
+
 
     [HttpPost(Name = "UploadImage")]
     public async Task<IActionResult> UploadImage(IFormFile? image)
