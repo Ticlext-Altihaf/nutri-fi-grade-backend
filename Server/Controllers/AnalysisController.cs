@@ -128,11 +128,17 @@ public class AnalysisController : ControllerBase
             return BadRequest("Invalid EAN-13.");
         }
 
+        // check cache
+        if (_cache.TryGetValue(ean13, out var cachedResult))
+        {
+            return Ok(cachedResult);
+        }
         var result = await _ean13Method.GetProductInformation(ean13);
         if (result == null)
         {
             return NotFound("No product found.");
         }
+        _cache.Set(ean13, result, TimeSpan.FromSeconds(15));
         return Ok(result);
 
     }
