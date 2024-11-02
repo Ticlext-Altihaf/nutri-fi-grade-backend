@@ -14,6 +14,7 @@ public class SemanticKernelProvider
     private readonly IOptions<AppConfiguration> _options;
 
     private Kernel? Kernel { get; set; }
+    private Kernel? FastKernel { get; set; } // sacrifice accuracy for speed
     public SemanticKernelProvider(IOptions<AppConfiguration> options)
     {
         _options = options;
@@ -98,6 +99,27 @@ public class SemanticKernelProvider
     public IChatCompletionService GetChatCompletionService()
     {
         var kernel = GetKernel();
+        return kernel.GetRequiredService<IChatCompletionService>();
+    }
+
+    public Kernel GetFastKernel()
+    {
+        if (this.FastKernel != null)
+        {
+            return this.FastKernel;
+        }
+
+        var res = ChangeChatModel("gpt-4o-mini");
+        if (res is null)
+        {
+            throw new Exception("No fast chat model found");
+        }
+        return res;
+    }
+
+    public IChatCompletionService GetFastChatCompletionService()
+    {
+        var kernel = GetFastKernel();
         return kernel.GetRequiredService<IChatCompletionService>();
     }
 }
