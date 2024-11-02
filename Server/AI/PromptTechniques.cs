@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
+using Server.Models;
 
 namespace Server.AI;
 
@@ -86,7 +87,7 @@ public class PromptTechniques
     public async Task<string> FindConsensus(string prompt)
     {
         var howMany = 5;
-        var list =  await MultiResponsePrompt<Consensus>(prompt, howMany);
+        var list =  await MultiResponsePrompt<ConsensusResult>(prompt, howMany);
         // filter out nulls
         list = list.Where(x => x != null).ToList();
 
@@ -96,7 +97,7 @@ public class PromptTechniques
             return "No consensus found.";
         }
 
-        return result.Result;
+        return result.Consensus;
 
     }
 
@@ -105,7 +106,7 @@ public class PromptTechniques
         var kernel = _semanticKernelProvider.GetKernel();
         var executionSettings = new OpenAIPromptExecutionSettings
         {
-            ResponseFormat = typeof(Consensus),
+            ResponseFormat = typeof(ConsensusResult),
             ChatSystemPrompt = "Find the consensus of the following results and get rid of faulty reasoning.",
             Temperature = 0,
         };
@@ -114,17 +115,15 @@ public class PromptTechniques
 
 
         var json = result.ToString();
-        var consensus = JsonSerializer.Deserialize<Consensus>(json, _options);
-        return consensus?.Result;
+        var consensus = JsonSerializer.Deserialize<ConsensusResult>(json, _options);
+        if(consensus == null)
+        {
+            return null;
+        }
 
+        return consensus.Consensus;
     }
 
 
 
-    public class Consensus
-    {
-
-        public string Reasoning;
-        public string Result;
-    }
 }
