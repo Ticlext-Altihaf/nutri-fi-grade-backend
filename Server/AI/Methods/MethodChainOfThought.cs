@@ -1,6 +1,7 @@
 using System.Text;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
 
 namespace Server.AI.Methods;
 
@@ -9,6 +10,7 @@ public class MethodChainOfThought
 {
     private readonly SemanticKernelProvider _semanticKernelProvider;
     private readonly CommonMethods _commonMethods;
+    private readonly Random _random = new Random();
 
     public MethodChainOfThought(SemanticKernelProvider semanticKernelProvider, CommonMethods commonMethods)
     {
@@ -53,7 +55,13 @@ public class MethodChainOfThought
             new ImageContent(dataUri)
         ]);
 
-        var reply = await chatCompletionService.GetChatMessageContentAsync(chatHistory);
+        var executionSettings = new OpenAIPromptExecutionSettings
+        {
+            Temperature = 0.65,
+            Seed = _random.NextInt64(),
+        };
+
+        var reply = await chatCompletionService.GetChatMessageContentAsync(chatHistory, executionSettings);
 
         return reply.Content;
     }
