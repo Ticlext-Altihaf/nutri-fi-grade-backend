@@ -25,15 +25,17 @@ public class AnalysisController : ControllerBase
     private readonly SemanticKernelProvider _semanticKernelProvider;
     private readonly IUserLanguageService _userLanguageService;
     private readonly PromptTechniques _promptTechniques;
+    private readonly EAN13Method _ean13Method;
     private readonly IMemoryCache _cache;
 
-    public AnalysisController(MethodChainOfThought chainOfThought, SemanticKernelProvider semanticKernelProvider, IUserLanguageService userLanguageService, PromptTechniques promptTechniques, IMemoryCache cache)
+    public AnalysisController(MethodChainOfThought chainOfThought, SemanticKernelProvider semanticKernelProvider, IUserLanguageService userLanguageService, PromptTechniques promptTechniques, IMemoryCache cache, EAN13Method ean13Method)
     {
         _chainOfThought = chainOfThought;
         _semanticKernelProvider = semanticKernelProvider;
         _userLanguageService = userLanguageService;
         _promptTechniques = promptTechniques;
         _cache = cache;
+        _ean13Method = ean13Method;
     }
 
     private async Task<FoodClassificationResult?> ToStructuredOutput(string analysis)
@@ -83,33 +85,55 @@ public class AnalysisController : ControllerBase
         {
             return BadRequest("No image uploaded.");
         }
-        // Compute hash of the file
-        string fileHash;
-        await using (var stream = image.OpenReadStream())
-        {
-            using (var sha256 = SHA256.Create())
-            {
-                var hashBytes = await sha256.ComputeHashAsync(stream);
-                fileHash = BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
-            }
-        }
 
-        // Check if the result is already cached
-        if (_cache.TryGetValue(fileHash, out var cachedResult))
-        {
-            return Ok(cachedResult);
-        }
 
         var observation = await _chainOfThought.Analyze(image);
         if(observation == null) return BadRequest("No observation found.");
         var structure = await ToStructuredOutput(observation);
         if(structure == null) return BadRequest("No structured output found.");
 
-        // Cache the result
-        _cache.Set(fileHash, structure, TimeSpan.FromHours(2));
 
         return Ok(structure);
 
     }
+    static bool IsValidEan13(string ean13)
+    {
+        if (ean13.Length != 13 || !long.TryParse(ean13, out _))
+        {
+            return false;
+        }
 
+        int sum = 0;
+        for (int i = 0; i < 12; i++)
+        {
+            int digit = ean13[i] - '0';
+            sum += (i % 2 == 0) ? digit : digit * 3;
+        }
+
+        int checkDigit = (10 - (sum % 10)) % 10;
+        int lastDigit = ean13[12] - '0';
+
+        return checkDigit == lastDigit;
+    }
+    [HttpPost(Name = "Method1")]
+    public async Task<IActionResult> Method1(string ean13)
+    {
+        if (string.IsNullOrWhiteSpace(ean13))
+        {
+            return BadRequest("No EAN-13 provided.");
+        }
+        var isValid = IsValidEan13(ean13);
+        if (!isValid)
+        {
+            return BadRequest("Invalid EAN-13.");
+        }
+
+        var result = await _ean13Method.GetProductInformation(ean13);
+        if (result == null)
+        {
+            return NotFound("No product found.");
+        }
+        return Ok(result);
+
+    }
 }

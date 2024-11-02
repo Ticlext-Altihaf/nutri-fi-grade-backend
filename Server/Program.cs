@@ -61,6 +61,17 @@ public class Program
         builder.Services.AddSingleton<EAN13Method>();
         builder.Services.AddSingleton<PromptTechniques>();
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll",
+                corsPolicyBuilder =>
+                {
+                    corsPolicyBuilder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+        });
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -72,7 +83,7 @@ public class Program
 
         app.UseAuthorization();
 
-
+        app.UseCors("AllowAll");
         app.MapControllers();
 
         app.Run();
