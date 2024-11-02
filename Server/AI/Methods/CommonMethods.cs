@@ -52,4 +52,16 @@ public class CommonMethods
 
         return reply.Content;
     }
+
+    public async Task<List<T>> ParallelExecution<T>(Func<Task<T>> task, int size)
+    {
+        var tasks = new List<Task<T>>();
+        for (var i = 0; i < size; i++)
+        {
+            tasks.Add(task());
+        }
+
+        var results = await Task.WhenAll(tasks);
+        return results.ToList();
+    }
 }

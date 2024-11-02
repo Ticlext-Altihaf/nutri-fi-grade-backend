@@ -9,7 +9,7 @@ namespace Server.AI;
 public class PromptTechniques
 {
     private readonly SemanticKernelProvider _semanticKernelProvider;
-    private readonly JsonSerializerOptions options = new JsonSerializerOptions
+    private readonly JsonSerializerOptions _options = new JsonSerializerOptions
     {
         Converters = { new JsonStringEnumConverter() }
     };
@@ -75,7 +75,7 @@ public class PromptTechniques
             {
                 var result = await kernel.InvokePromptAsync(prompt, new KernelArguments(executionSettings));
                 var json = result.ToString();
-                return JsonSerializer.Deserialize<T>(json, options);
+                return JsonSerializer.Deserialize<T>(json, _options);
             }));
         }
 
@@ -86,7 +86,7 @@ public class PromptTechniques
     public async Task<string> FindConsensus(string prompt)
     {
         var howMany = 5;
-        var list =  await MultiResponsePrompt<InternalConsensus>(prompt, howMany);
+        var list =  await MultiResponsePrompt<Consensus>(prompt, howMany);
         // filter out nulls
         list = list.Where(x => x != null).ToList();
 
@@ -98,13 +98,33 @@ public class PromptTechniques
 
         return result.Result;
 
+    }
 
+    public async Task<string?> FindConsensus(List<string> results)
+    {
+        var kernel = _semanticKernelProvider.GetKernel();
+        var executionSettings = new OpenAIPromptExecutionSettings
+        {
+            ResponseFormat = typeof(Consensus),
+            ChatSystemPrompt = "Find the consensus of the following results and get rid of faulty reasoning.",
+            Temperature = 0,
+        };
+
+        var result = await kernel.InvokePromptAsync(JsonSerializer.Serialize(results), new KernelArguments(executionSettings));
+
+
+        var json = result.ToString();
+        var consensus = JsonSerializer.Deserialize<Consensus>(json, _options);
+        return consensus?.Result;
 
     }
 
-    private class InternalConsensus
+
+
+    public class Consensus
     {
-        public string Result;
+
         public string Reasoning;
+        public string Result;
     }
 }

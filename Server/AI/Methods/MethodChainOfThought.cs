@@ -37,14 +37,13 @@ public class MethodChainOfThought
 
         return dataUri;
     }
-    public  async Task<string?> Observation(IFormFile image)
+    public  async Task<string?> Observation(string dataUri)
     {
         var chatCompletionService = _semanticKernelProvider.GetChatCompletionService();
 
         string systemPrompt = "Describe the foods one by one in the image if possible.";
         string userInput = "Create observation for this image";
         // Select an image URL to send
-        string dataUri = await ConvertIFormFileToDataUri(image);
 
         // Add system message
         var chatHistory = new ChatHistory(systemPrompt);
