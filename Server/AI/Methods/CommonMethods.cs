@@ -53,7 +53,7 @@ public class CommonMethods
         return reply.Content;
     }
 
-    public async Task<List<T>> ParallelExecution<T>(Func<Task<T>> task, int size)
+    public static async Task<List<T>> ParallelExecution<T>(Func<Task<T>> task, int size)
     {
         var tasks = new List<Task<T>>();
         for (var i = 0; i < size; i++)

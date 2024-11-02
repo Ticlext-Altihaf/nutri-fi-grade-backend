@@ -41,7 +41,7 @@ public class DebugController : ControllerBase
         }
 
         string dataUri = await CommonMethods.ConvertIFormFileToDataUri(image);
-        var result = await _commonMethods.ParallelExecution(() => _chainOfThought.Observation(dataUri), 5);
+        var result = await CommonMethods.ParallelExecution(() => _chainOfThought.Observation(dataUri), 5);
         // filter
         List<string> nonNullResults = result.OfType<string>().ToList();
 
