@@ -14,7 +14,7 @@ using Server.Services;
 namespace Server.Controllers;
 #pragma warning disable SKEXP0010
 [ApiController]
-[Route("[controller]")]
+[Route("[controller]/[action]")]
 public class AnalysisController : ControllerBase
 {
 

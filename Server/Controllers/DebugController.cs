@@ -4,7 +4,7 @@ using Server.AI.Methods;
 
 namespace Server.Controllers;
 [ApiController]
-[Route("[controller]")]
+[Route("[controller]/[action]")]
 public class DebugController : ControllerBase
 {
     private readonly MethodChainOfThought _chainOfThought;
