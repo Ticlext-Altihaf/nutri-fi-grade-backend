@@ -56,6 +56,7 @@ public class Program
 
         builder.Services.AddSingleton<SemanticKernelProvider>();
         builder.Services.AddSingleton<MethodChainOfThought>();
+        builder.Services.AddSingleton<EAN13Method>();
         builder.Services.AddSingleton<PromptTechniques>();
 
         var app = builder.Build();
