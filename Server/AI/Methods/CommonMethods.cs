@@ -6,10 +6,12 @@ namespace Server.AI.Methods;
 public class CommonMethods
 {
     private readonly SemanticKernelProvider _semanticKernelProvider;
+    private readonly PromptTechniques _promptTechniques;
 
-    public CommonMethods(SemanticKernelProvider semanticKernelProvider)
+    public CommonMethods(SemanticKernelProvider semanticKernelProvider, PromptTechniques promptTechniques)
     {
         _semanticKernelProvider = semanticKernelProvider;
+        _promptTechniques = promptTechniques;
     }
     public static async Task<string> ConvertIFormFileToDataUri(IFormFile file)
     {
@@ -32,13 +34,11 @@ public class CommonMethods
 
         return dataUri;
     }
-    public async Task<string?> Observation(IFormFile image, string systemPrompt = "Describe the foods one by one in the image if possible.")
+    public async Task<string?> Observation(string dataUri, string systemPrompt = "Describe the foods one by one in the image if possible.")
     {
         var chatCompletionService = _semanticKernelProvider.GetChatCompletionService();
 
         string userInput = "Create observation for this image";
-        // Select an image URL to send
-        string dataUri = await ConvertIFormFileToDataUri(image);
 
         // Add system message
         var chatHistory = new ChatHistory(systemPrompt);
@@ -51,6 +51,31 @@ public class CommonMethods
         var reply = await chatCompletionService.GetChatMessageContentAsync(chatHistory);
 
         return reply.Content;
+    }
+
+    public async Task<string?> Observation(IFormFile image, string systemPrompt = "Describe the foods one by one in the image if possible.")
+    {
+        string dataUri = await CommonMethods.ConvertIFormFileToDataUri(image);
+        return await this.Observation(dataUri, systemPrompt);
+    }
+
+
+    public async Task<string?> ObservationWithConsensus(string dataUri, int howMany = 5)
+    {
+
+
+        var result = await CommonMethods.ParallelExecution(() => this.Observation(dataUri), 5);
+        // filter
+        List<string> nonNullResults = result.OfType<string>().ToList();
+
+        var consensus = await _promptTechniques.FindConsensus(nonNullResults);
+        return consensus;
+    }
+
+    public async Task<string?> ObservationWithConsensus(IFormFile image, int howMany = 5)
+    {
+        string dataUri = await CommonMethods.ConvertIFormFileToDataUri(image);
+        return await this.ObservationWithConsensus(dataUri, howMany);
     }
 
     public static async Task<List<T>> ParallelExecution<T>(Func<Task<T>> task, int size)
