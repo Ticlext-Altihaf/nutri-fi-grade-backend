@@ -43,6 +43,7 @@ public class Program
         builder.Logging.AddConsole();
 
         builder.Services.AddHttpContextAccessor();
+        builder.Services.AddMemoryCache();
         builder.Services.AddScoped<IUserLanguageService, UserLanguageService>();
         builder.Services.AddControllers().AddJsonOptions(options =>
         {

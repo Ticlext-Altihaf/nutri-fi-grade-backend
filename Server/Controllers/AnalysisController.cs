@@ -1,7 +1,9 @@
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
@@ -23,13 +25,15 @@ public class AnalysisController : ControllerBase
     private readonly SemanticKernelProvider _semanticKernelProvider;
     private readonly IUserLanguageService _userLanguageService;
     private readonly PromptTechniques _promptTechniques;
+    private readonly IMemoryCache _cache;
 
-    public AnalysisController(MethodChainOfThought chainOfThought, SemanticKernelProvider semanticKernelProvider, IUserLanguageService userLanguageService, PromptTechniques promptTechniques)
+    public AnalysisController(MethodChainOfThought chainOfThought, SemanticKernelProvider semanticKernelProvider, IUserLanguageService userLanguageService, PromptTechniques promptTechniques, IMemoryCache cache)
     {
         _chainOfThought = chainOfThought;
         _semanticKernelProvider = semanticKernelProvider;
         _userLanguageService = userLanguageService;
         _promptTechniques = promptTechniques;
+        _cache = cache;
     }
 
     private async Task<FoodClassificationResult?> ToStructuredOutput(string analysis)
@@ -79,11 +83,30 @@ public class AnalysisController : ControllerBase
         {
             return BadRequest("No image uploaded.");
         }
+        // Compute hash of the file
+        string fileHash;
+        await using (var stream = image.OpenReadStream())
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var hashBytes = await sha256.ComputeHashAsync(stream);
+                fileHash = BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+            }
+        }
+
+        // Check if the result is already cached
+        if (_cache.TryGetValue(fileHash, out var cachedResult))
+        {
+            return Ok(cachedResult);
+        }
 
         var observation = await _chainOfThought.Analyze(image);
         if(observation == null) return BadRequest("No observation found.");
         var structure = await ToStructuredOutput(observation);
         if(structure == null) return BadRequest("No structured output found.");
+
+        // Cache the result
+        _cache.Set(fileHash, structure, TimeSpan.FromHours(2));
 
         return Ok(structure);
 
