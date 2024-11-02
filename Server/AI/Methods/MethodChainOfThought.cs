@@ -8,10 +8,12 @@ namespace Server.AI.Methods;
 public class MethodChainOfThought
 {
     private readonly SemanticKernelProvider _semanticKernelProvider;
+    private readonly CommonMethods _commonMethods;
 
-    public MethodChainOfThought(SemanticKernelProvider semanticKernelProvider)
+    public MethodChainOfThought(SemanticKernelProvider semanticKernelProvider, CommonMethods commonMethods)
     {
         _semanticKernelProvider = semanticKernelProvider;
+        _commonMethods = commonMethods;
     }
 
     private static async Task<string> ConvertIFormFileToDataUri(IFormFile file)
@@ -91,7 +93,7 @@ public class MethodChainOfThought
 
     public async Task<string?> Analyze(IFormFile image)
     {
-        var observation = await Observation(image);
+        var observation = await _commonMethods.Observation(image);
         if(observation == null)
         {
             return null;
