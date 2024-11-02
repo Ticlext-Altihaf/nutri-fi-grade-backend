@@ -41,11 +41,7 @@ public class DebugController : ControllerBase
         }
 
         string dataUri = await CommonMethods.ConvertIFormFileToDataUri(image);
-        var result = await CommonMethods.ParallelExecution(() => _chainOfThought.Observation(dataUri), 5);
-        // filter
-        List<string> nonNullResults = result.OfType<string>().ToList();
-
-        var consensus = await _promptTechniques.FindConsensus(nonNullResults);
+        var consensus = await _commonMethods.ObservationWithConsensus(dataUri);
         return Ok(consensus);
     }
 }
