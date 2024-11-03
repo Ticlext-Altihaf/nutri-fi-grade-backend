@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.FileProviders;
 using Server.AI;
 using Server.AI.Methods;
 using Server.Services;
@@ -81,6 +82,8 @@ public class Program
             app.UseSwaggerUI();
         }
 
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
         app.UseAuthorization();
 
         app.UseCors("AllowAll");
