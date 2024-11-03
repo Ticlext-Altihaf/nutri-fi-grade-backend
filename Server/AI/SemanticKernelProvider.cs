@@ -12,12 +12,14 @@ public class SemanticKernelProvider
 {
 
     private readonly IOptions<AppConfiguration> _options;
+    private readonly ILogger<SemanticKernelProvider> _logger;
 
     private Kernel? Kernel { get; set; }
     private Kernel? FastKernel { get; set; } // sacrifice accuracy for speed
-    public SemanticKernelProvider(IOptions<AppConfiguration> options)
+    public SemanticKernelProvider(IOptions<AppConfiguration> options, ILogger<SemanticKernelProvider> logger)
     {
         _options = options;
+        _logger = logger;
     }
 
 
@@ -52,6 +54,10 @@ public class SemanticKernelProvider
         }
 
         var endpoint = selectedModel.Endpoint;
+
+
+        _logger.LogInformation($"Selected model: {selectedModel.GetDisplayName()}");
+        _logger.LogInformation($"Endpoint: {endpoint}");
 
 
         if (selectedModel.Type == "AzureAIInference")
