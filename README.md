@@ -30,7 +30,8 @@ Nutri Fi Grade is a web-based application designed to enhance nutrition awarenes
 
 ## Visuals
 
-- **Chain of Thought Diagram**: ![Chain of Thought Diagram](https://github.com/user-attachments/assets/40d295d0-6c9b-403c-8bf7-cae04c340f58)
+- **Chain of Thought Diagram**: ![Chain of Thought Diagram](https://github.com/user-attachments/assets/1218edf9-39bf-4d34-a247-d7c068278cb0)
+- **Multi Agent Consensus Seeking**: ![Multi Agent Consensus Seeking](https://github.com/user-attachments/assets/800ae867-3b96-4452-8106-9acea8840658)
 - **Accuracy Showcase**: ![88% Accuracy](https://github.com/user-attachments/assets/033388bc-7f90-4211-a4e8-dd0dd8e08677)
 - **Application Showcase**:
 
