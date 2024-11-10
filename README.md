@@ -25,7 +25,6 @@ Nutri Fi Grade is a web-based application designed to enhance nutrition awarenes
 ## Resources
 
 - **Frontend Repository**: [Nutri Fi Grade Frontend](https://github.com/Ticlext-Altihaf/nutri-fi-grade-frontend)
-- **Accuracy Testing Repository**: [Nutri Fi Grade Test](https://github.com/Ticlext-Altihaf/nutri-fi-grade-test)
 - **Test Results**: [View Test Results](https://docs.google.com/spreadsheets/d/1J8f95pWuXEliowd9euuFz1cjQwx4SBO7k5mEdDq8kFI/edit?usp=sharing)
 
 ## Visuals
