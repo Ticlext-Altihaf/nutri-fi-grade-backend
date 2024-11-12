@@ -22,6 +22,10 @@ Nutri Fi Grade is a web-based application designed to enhance nutrition awarenes
 - **Accuracy**: Achieves an 88% accuracy rate in food content recognition and health assessment.
 - **Testing**: Comprehensive tests are documented to ensure reliability and performance.
 
+## Disclaimer
+
+Nutri-Fi Grade provides general nutritional information and is intended for educational purposes only. It is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition or dietary needs.
+
 ## Resources
 
 - **Frontend Repository**: [Nutri Fi Grade Frontend](https://github.com/Ticlext-Altihaf/nutri-fi-grade-frontend)
