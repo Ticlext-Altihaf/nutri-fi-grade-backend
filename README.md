@@ -13,9 +13,9 @@ Nutri Fi Grade is a web-based application designed to enhance nutrition awarenes
 
 ## Technologies
 
-- **Frontend**: Built with Vue.js for a responsive and intuitive user experience.
+- **Frontend**: Built with Vue.js and Typescript.
 - **Backend**: Developed using ASP.NET MVC with REST API integration.
-- **AI & ML**: Uses Azure OpenAI and Azure ML for advanced food recognition and analysis.
+- **AI & ML**: Uses LLM from Azure OpenAI and Azure ML for advanced food recognition and analysis.
 
 ## Accuracy and Testing
 
