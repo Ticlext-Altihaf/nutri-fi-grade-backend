@@ -39,6 +39,7 @@ Nutri-Fi Grade provides general nutritional information and is intended for educ
 - **Application Showcase**:
 
 ![Showcase](https://github.com/user-attachments/assets/42e1ab77-95b5-498b-888f-f496a50c04ff)
+![Bottled Mineral Water](https://github.com/user-attachments/assets/950d8dd8-9e4b-4ed6-9858-69b96f8d3977)
 
 ## License
 
